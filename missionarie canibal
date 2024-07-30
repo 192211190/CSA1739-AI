@@ -1,0 +1,62 @@
+from collections import deque
+
+# Function to check if a state is valid
+def is_valid_state(missionaries_left, cannibals_left, missionaries_right, cannibals_right):
+    if missionaries_left < 0 or missionaries_right < 0 or cannibals_left < 0 or cannibals_right < 0:
+        return False
+    if missionaries_left > 0 and missionaries_left < cannibals_left:
+        return False
+    if missionaries_right > 0 and missionaries_right < cannibals_right:
+        return False
+    return True
+
+# Function to generate successors of a state
+def generate_successors(state):
+    missionaries_left, cannibals_left, missionaries_right, cannibals_right, boat = state
+    successors = []
+    if boat == 'left':
+        for m in range(3):
+            for c in range(3):
+                if 0 < m + c <= 2:
+                    new_state = (missionaries_left - m, cannibals_left - c, missionaries_right + m, cannibals_right + c, 'right')
+                    if is_valid_state(*new_state):
+                        successors.append(new_state)
+    else:
+        for m in range(3):
+            for c in range(3):
+                if 0 < m + c <= 2:
+                    new_state = (missionaries_left + m, cannibals_left + c, missionaries_right - m, cannibals_right - c, 'left')
+                    if is_valid_state(*new_state):
+                        successors.append(new_state)
+    return successors
+
+# BFS function to solve the problem
+def solve_missionaries_and_cannibals():
+    initial_state = (3, 3, 0, 0, 'left')
+    goal_state = (0, 0, 3, 3, 'right')
+    queue = deque([(initial_state, [])])
+    visited = set()
+
+    while queue:
+        state, path = queue.popleft()
+        if state in visited:
+            continue
+        visited.add(state)
+        if state == goal_state:
+            return path + [state]
+        for successor in generate_successors(state):
+            queue.append((successor, path + [state]))
+
+    return None
+
+# Function to print the solution
+def print_solution(solution):
+    if not solution:
+        print("No solution found.")
+    else:
+        for step in solution:
+            print(step)
+
+# Solve the problem and print the solution
+solution = solve_missionaries_and_cannibals()
+print_solution(solution)
